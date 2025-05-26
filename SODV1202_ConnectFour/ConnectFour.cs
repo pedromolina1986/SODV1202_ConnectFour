@@ -1,5 +1,4 @@
 ﻿/*
-
 REFERENCES:
 
 COMPUTER PLAYER SIMULATION:
@@ -77,7 +76,12 @@ DESCRIPTION PRO COMPUTER PLAYER (AI)
 //CLASS GAME
 public class GAME {
 
-    public void GAMESTARTSCREEN() {
+    /*
+     REFERENCES: 
+        - Console title: https://learn.microsoft.com/en-us/dotnet/api/system.console.title?view=net-9.0
+        - Console Foreground color: https://learn.microsoft.com/en-us/dotnet/api/system.console.foregroundcolor?view=net-9.0
+     */
+    public int GAMESTARTSCREEN() {
         Console.Title = "Connect Four - Console Edition";
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Clear();
@@ -98,8 +102,15 @@ public class GAME {
         [3] Exit
         =====================================================================
         Enter your choice: ");
-        string option = Console.ReadLine();
-     }
+        int option = 0;
+        
+        option = int.Parse(Console.ReadLine());
+        if (option < 1 || option > 3) {
+            GAMESTARTSCREEN();
+        } 
+        
+        return option;
+    }
      
 }
 
