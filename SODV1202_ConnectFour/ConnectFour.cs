@@ -87,12 +87,12 @@ public class GAME {
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Clear();
 
-        Console.WriteLine(@"               _____                          _     _    _           ");       
-        Console.WriteLine(@"              / ____|                        | |   | |  | |          ");       
-        Console.WriteLine(@"             | |     ___  _ _____________  __| |_  | |__| |          ");       
-        Console.WriteLine(@"             | |    / _ \| '_  | '_  | _ \/ _| __| |_ _   |          ");       
-        Console.WriteLine(@"             | |___| (_) | | | | | | | __/ (_| |_      |  |          ");       
-        Console.WriteLine(@"              \_____\___/|_| |_|_| |_|___\___|\__|     |__|          ");       
+        Console.WriteLine(@"               _____                          _     _   _            ");       
+        Console.WriteLine(@"              / ____|                        | |   | | | |           ");       
+        Console.WriteLine(@"             | |     ___  _ ___ _ ___ ___  __| |_  | |_| |           ");       
+        Console.WriteLine(@"             | |    / _ \| '_  | '_  | _ \/ _| __| |_ _  |           ");       
+        Console.WriteLine(@"             | |___| (_) | | | | | | | __/ (_| |_      | |           ");       
+        Console.WriteLine(@"              \_____\___/|_| |_|_| |_|___\___|\__|     |_|           ");       
         Console.WriteLine(@"                                                                     ");
         Console.WriteLine(@"=====================================================================");
         Console.WriteLine(@"                   Welcome to Console Connect Four!                  ");
