@@ -82,7 +82,7 @@ public class GAME {
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Clear();
 
-        Console.WriteLine(@"
+        Console.Write(@"
                        _____                          _     _    _                     
                       / ____|                        | |   | |  | |                    
                      | |     ___  _ _____________  __| |_  | |__| |                    
