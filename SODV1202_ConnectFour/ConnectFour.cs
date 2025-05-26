@@ -75,15 +75,44 @@ DESCRIPTION PRO COMPUTER PLAYER (AI)
  */
 
 //CLASS GAME
+public class GAME {
+
+    public void GAMESTARTSCREEN() {
+        Console.Title = "Connect Four - Console Edition";
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Clear();
+
+        Console.WriteLine(@"
+                       _____                          _     _    _                     
+                      / ____|                        | |   | |  | |                    
+                     | |     ___  _ _____________  __| |_  | |__| |                    
+                     | |    / _ \| '_  | '_  | _ \/ _| __| |_ _   |                    
+                     | |___| (_) | | | | | | | __/ (_| |_      |  |                    
+                      \_____\___/|_| |_|_| |_|___\___|\__|     |__|                    
+
+        =====================================================================
+                           Welcome to Console Connect Four!
+        =====================================================================
+        [1] Start New Game
+        [2] Instructions
+        [3] Exit
+        =====================================================================
+        Enter your choice: ");
+        string option = Console.ReadLine();
+     }
+     
+}
 
 //CLASS BOARD
 
-public class Program
+public class ConnectFour
 {
     private static void Main(string[] args)
     {
         //GAME LOOP
-            //Start game screen
+        //Start game screen
+        GAME ConnectFour = new GAME();
+        ConnectFour.GAMESTARTSCREEN();        
             //Players handle methods
             //Game play
             //Game over screen
