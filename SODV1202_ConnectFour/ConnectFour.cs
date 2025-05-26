@@ -53,6 +53,7 @@ using static System.Reflection.Metadata.BlobBuilder;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Data.Common;
 using System.Threading.Tasks;
+using System.Diagnostics.Metrics;
 
 //CLASS PLAYER
 
@@ -86,24 +87,22 @@ public class GAME {
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Clear();
 
-        Console.Write(@"
-                       _____                          _     _    _                     
-                      / ____|                        | |   | |  | |                    
-                     | |     ___  _ _____________  __| |_  | |__| |                    
-                     | |    / _ \| '_  | '_  | _ \/ _| __| |_ _   |                    
-                     | |___| (_) | | | | | | | __/ (_| |_      |  |                    
-                      \_____\___/|_| |_|_| |_|___\___|\__|     |__|                    
-
-        =====================================================================
-                           Welcome to Console Connect Four!
-        =====================================================================
-        [1] Start New Game
-        [2] Instructions
-        [3] Exit
-        =====================================================================
-        Enter your choice: ");
-        int option = 0;
-        
+        Console.WriteLine(@"               _____                          _     _    _           ");       
+        Console.WriteLine(@"              / ____|                        | |   | |  | |          ");       
+        Console.WriteLine(@"             | |     ___  _ _____________  __| |_  | |__| |          ");       
+        Console.WriteLine(@"             | |    / _ \| '_  | '_  | _ \/ _| __| |_ _   |          ");       
+        Console.WriteLine(@"             | |___| (_) | | | | | | | __/ (_| |_      |  |          ");       
+        Console.WriteLine(@"              \_____\___/|_| |_|_| |_|___\___|\__|     |__|          ");       
+        Console.WriteLine(@"                                                                     ");
+        Console.WriteLine(@"=====================================================================");
+        Console.WriteLine(@"                   Welcome to Console Connect Four!                  ");
+        Console.WriteLine(@"=====================================================================");
+        Console.WriteLine(@"[1] Start New Game                                                   ");
+        Console.WriteLine(@"[2] Instructions                                                     ");
+        Console.WriteLine(@"[3] Exit                                                             ");
+        Console.WriteLine(@"=====================================================================");
+        Console.Write("Enter your choice: ");
+        int option = 0;        
         option = int.Parse(Console.ReadLine());
         if (option < 1 || option > 3) {
             GAMESTARTSCREEN();
@@ -120,13 +119,30 @@ public class ConnectFour
 {
     private static void Main(string[] args)
     {
-        //GAME LOOP
         //Start game screen
         GAME ConnectFour = new GAME();
-        ConnectFour.GAMESTARTSCREEN();        
-            //Players handle methods
-            //Game play
-            //Game over screen
-            //Play again?
+        /*
+        [1] Start New Game
+        [2] Instructions
+        [3] Exit
+        */
+        int action = ConnectFour.GAMESTARTSCREEN();
+
+        switch (action) {
+            case 1:
+                Console.WriteLine("START GAME");
+                //GAME LOOP
+                    //Players handle methods
+                    //Game play
+                    //Game over screen
+                    //Play again?
+                break;
+            case 2:
+                //CALL GAME INFO SCREEN
+                Console.WriteLine("INFORMATION");
+                break;
+            case 3:
+                break;                
+        };        
     }
 } 
