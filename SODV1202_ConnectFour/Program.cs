@@ -1,6 +1,10 @@
 ﻿/*
 
-REF: CHATGPT - PROMPT - What is the best way to create an algorithm to simulate an human player against another human player?
+REFERENCES:
+
+COMPUTER PLAYER SIMULATION:
+
+CHATGPT - PROMPT - What is the best way to create an algorithm to simulate an human player against another human player?
 
 Human-like Simulation Approaches 
 
@@ -39,6 +43,9 @@ E. Hybrid Models
 Combine heuristics + ML + randomness for more nuanced behavior.   
 e.g., Use rules for common scenarios, but ML for strategy.
  
+******OUR CONCLUSION******
+
+OPTION A IS THE ONE THAT FITS BETTER FOR THIS GAME BECAUSE WHIS GAME IS SIMPLE.
 
  */
 
@@ -80,7 +87,6 @@ public class Program
             //Players handle methods
             //Game play
             //Game over screen
-            //Pplay again?
-
+            //Play again?
     }
 } 
