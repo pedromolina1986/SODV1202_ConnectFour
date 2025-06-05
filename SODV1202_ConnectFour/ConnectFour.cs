@@ -54,95 +54,510 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Data.Common;
 using System.Threading.Tasks;
 using System.Diagnostics.Metrics;
-
-//CLASS PLAYER
-
-//CLASS PLAYER HUMAN
-
-//CLASS PLAYER COMPUTER
-
-/*
-DESCRIPTION PRO COMPUTER PLAYER (AI)
-1 - IS THERE ANY SPOT TO WIN?
-2 - IS THERE ANY SPOT WHICH THE OTHER PLAYER WILL WIN?
-3 - IS THERE ANY SPOT THAT LEAVES ME 3 POSSIBILITIES TO WIN?
-4 - IS THERE ANY SPOT THAT LEAVES ME 2 POSSIBILITIES TO WIN?
-5 - IS THERE ANY SPOT THAT LEAVES ME 1 POSSIBILITY TO WIN?
-6 - IS THERE ANY SPOT THAT LEAVES THE OTHER PLAYER 3 POSSIBILITIES TO WIN?
-7 - IS THERE ANY SPOT THAT LEAVES THE OTHER PLAYER 2 POSSIBILITIES TO WIN?
-8 - IS THERE ANY SPOT THAT LEAVES THE OTHER PLAYER 1 POSSIBILITY TO WIN?
-9 - PLACE COIN IN ANY LOWER AVAILABLE SPOT
- */
+using System;
+using System.Numerics;
+using System.Collections.Generic;
 
 //CLASS GAME
-public class GAME {
+public class Game{
+    
+    public Board GameBoard { get; set; }
+    public List<Player> Players { get; set; }
+    public List<Player> Rank { get; set; }
+    public Player CurrentPlayer { get; set; }
 
+    //CONSTRUCTOR
+    public Game() {
+        GameBoard = new Board();
+        Players = new List<Player>();
+        Rank = new List<Player>();        
+    }
+
+    //GAME START SCREEN
     /*
      REFERENCES: 
         - Console title: https://learn.microsoft.com/en-us/dotnet/api/system.console.title?view=net-9.0
         - Console Foreground color: https://learn.microsoft.com/en-us/dotnet/api/system.console.foregroundcolor?view=net-9.0
      */
-    public int GAMESTARTSCREEN() {
+    public int GAMESTARTSCREEN(bool playAgain = false)
+    {
         Console.Title = "Connect Four - Console Edition";
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Clear();
 
-        Console.WriteLine(@"               _____                          _     _   _            ");       
-        Console.WriteLine(@"              / ____|                        | |   | | | |           ");       
-        Console.WriteLine(@"             | |     ___  _ ___ _ ___ ___  __| |_  | |_| |           ");       
-        Console.WriteLine(@"             | |    / _ \| '_  | '_  | _ \/ _| __| |_ _  |           ");       
-        Console.WriteLine(@"             | |___| (_) | | | | | | | __/ (_| |_      | |           ");       
-        Console.WriteLine(@"              \_____\___/|_| |_|_| |_|___\___|\__|     |_|           ");       
+        Console.WriteLine(@"               _____                          _     _   _            ");
+        Console.WriteLine(@"              / ____|                        | |   | | | |           ");
+        Console.WriteLine(@"             | |     ___  _ ___ _ ___ ___  __| |_  | |_| |           ");
+        Console.WriteLine(@"             | |    / _ \| '_  | '_  | _ \/ _| __| |_ _  |           ");
+        Console.WriteLine(@"             | |___| (_) | | | | | | | __/ (_| |_      | |           ");
+        Console.WriteLine(@"              \_____\___/|_| |_|_| |_|___\___|\__|     |_|           ");
         Console.WriteLine(@"                                                                     ");
         Console.WriteLine(@"=====================================================================");
         Console.WriteLine(@"                   Welcome to Console Connect Four!                  ");
         Console.WriteLine(@"=====================================================================");
-        Console.WriteLine(@"[1] Start New Game                                                   ");
-        Console.WriteLine(@"[2] Instructions                                                     ");
-        Console.WriteLine(@"[3] Exit                                                             ");
+        if (Rank.Count > 0) {            
+            Console.WriteLine(@"                            POWER RANK                               ");
+            Console.WriteLine(@"=====================================================================");
+            foreach (Player player in Rank) {
+                Console.WriteLine(player.Wins + " WINS of ("+player.GamesPlayed+") | " + player.Name);
+            }
+            Console.WriteLine(@"=====================================================================");
+        }
+        if (playAgain)
+        {
+            Console.WriteLine(@"[0] PLAY AGAIN                                                       ");
+        }
+        else
+        {
+            Console.WriteLine(@"[1] HUMAN vs COMPUTER                                                ");
+            Console.WriteLine(@"[2] HUMAN vs HUMAN                                                   ");
+            Console.WriteLine(@"[3] EXIT                                                             ");
+
+        }
         Console.WriteLine(@"=====================================================================");
         Console.Write("Enter your choice: ");
-        int option = 0;        
-        option = int.Parse(Console.ReadLine());
-        if (option < 1 || option > 3) {
-            GAMESTARTSCREEN();
-        } 
+        int option = 0;
         
+        option = int.Parse(s: Console.ReadLine());
+        if (option < 1 || option > 3)
+        {
+            GAMESTARTSCREEN();
+        }
+
         return option;
     }
-     
+    //SET PLAYERS
+    public void SetPlayers(int gameType) {
+        Human newPlayer1 = new Human();
+        Console.Write("Player 1 - Type your name and press ENTER:");
+        newPlayer1.Name = Console.ReadLine();
+        newPlayer1.Symbol = 'O';
+        Players.Add(newPlayer1);
+        if (gameType == 1)
+        {
+            Computer newPlayer2 = new Computer();
+            newPlayer2.Name = "COMPUTER";
+            newPlayer2.Symbol = 'X';
+            Players.Add(newPlayer2);
+        }
+        else 
+        {
+            Human newPlayer2 = new Human();
+            Console.Write("Player 2 - Type your name and press ENTER:");
+            newPlayer2.Name = Console.ReadLine();
+            newPlayer2.Symbol = 'X';
+            Players.Add(newPlayer2);
+        }
+        //Set current player
+        CurrentPlayer = newPlayer1;
+    }
+
+    //GAME PLAY
+    public void GamePlay()
+    {
+        Console.Write(GameBoard);
+        string col;
+        int intCol;
+        bool endGame = false;
+        do
+        {
+            do
+            {
+                if (CurrentPlayer is Human)
+                {
+                    Console.Write(CurrentPlayer.Name + " - Drop coin on column:");
+                    col = Console.ReadLine();
+                    int.TryParse(col, out intCol);
+                    //CHECK IF CAN PARSE TO INT
+                }
+                else {
+                    intCol = 0;
+                }
+            } while (!CurrentPlayer.Play(intCol, CurrentPlayer, this));
+
+            //check end game
+            endGame = GameWin() || GameTie();
+
+            if (!endGame) {
+                int indCurrent = Players.FindIndex(f => f.Symbol == CurrentPlayer.Symbol);
+                if (indCurrent == 1)
+                {
+                    CurrentPlayer = Players[0];
+                }
+                else
+                {
+                    CurrentPlayer = Players[1];
+                }
+            }            
+        } while (!endGame);
+        //after game play reset to the default settings        
+        SetRank(CurrentPlayer);
+        GameReset();
+    }
+
+    //check if is there a winner
+    //hypotesis will check with a simulated board if there will be a winner
+    public bool GameWin(bool hypotesis = false) 
+    {                
+        bool isThereWinner = false;
+        for (int row = 5; row > 1; row--) {
+            for (int col = 0; col < 7; col++) {
+                if (GameBoard.Spots[row, col] == CurrentPlayer.Symbol) {
+
+                    //vertical
+                    if (GameBoard.Spots[row, col] == GameBoard.Spots[row - 1, col] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 2, col]) {
+                        isThereWinner = true;
+                    };
+
+                    //horizontal
+                    if (col < 5) {                        
+                        if (GameBoard.Spots[row, col] == GameBoard.Spots[row, col + 1] && GameBoard.Spots[row, col] == GameBoard.Spots[row, col + 2])
+                        {
+                            isThereWinner = true;
+                        }                        
+                    };
+                    
+                    //Diganoals from the midle
+                    if (col > 0 && col < 6 && row < 5) {                        
+                        if (GameBoard.Spots[row, col] == GameBoard.Spots[row + 1, col+1] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 1, col - 1])
+                        {
+                            isThereWinner = true;
+                        }
+                        if (GameBoard.Spots[row, col] == GameBoard.Spots[row + 1, col - 1] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 1, col + 1])
+                        {
+                            isThereWinner = true;
+                        }
+                    }
+                }
+            } 
+        }
+        if (isThereWinner && !hypotesis) {
+            Console.WriteLine(CurrentPlayer.Name + " is the Winner!!!");
+            //just to keep the screen showing the last play
+            string playAgain = Console.ReadLine();
+        }
+        return isThereWinner;
+    }
+
+    //check game tie
+    public bool GameTie()
+    {
+        foreach (char spot in GameBoard.Spots) {
+            if (spot == '-') {
+                return false;
+            }
+        }
+        Console.WriteLine("Tie");
+        return true;
+    }
+
+    //SET RANK
+    public void SetRank(Player winner) {     
+        //find winner
+        int indexWinner = Rank.FindIndex(f => f.Name == winner.Name);
+        if (indexWinner > -1)
+        {
+            Rank[indexWinner].GamesPlayed++;
+            Rank[indexWinner].Wins++;
+        }
+        else 
+        {
+            winner.Wins++;
+            winner.GamesPlayed++;
+            Rank.Add(winner);
+        }
+
+        //find looser
+        Player looser = Players.Find(f => f.Symbol != winner.Symbol);        
+        int indexLooser = Rank.FindIndex(f => f.Name == looser.Name);
+        if (indexLooser > -1)
+        {
+            Rank[indexLooser].GamesPlayed++;
+        }
+        else
+        {
+            looser.GamesPlayed++;
+            Rank.Add(looser);
+        }
+
+        Rank.Sort((a, b) =>
+        {
+            int result = b.Wins.CompareTo(a.Wins); // descending by Wins
+            if (result == 0)
+            {
+                result = b.GamesPlayed.CompareTo(a.GamesPlayed); // descending by GamesPlayed
+            }
+            return result;
+        });
+    }
+
+    //RESET GAME
+    public void GameReset() {
+        //Clear list od players
+        Players.Clear();
+
+        //Create a new clean board
+        GameBoard = new Board();
+    }
 }
-
 //CLASS BOARD
+public class Board {
+    public char[,] Spots { get; set; }
 
+    //Constructor    
+    public Board() {        
+        Spots = new char[6,7];
+        for (int row = 0; row < 6; row++)
+        {
+            for (int col = 0; col < 7; col++)
+            {
+                Spots[row, col] = '-';                
+            }
+        }
+    }
+
+    //FillSpot
+    public bool FillSpot(int colPick, char symbol) {
+
+        if (colPick < 1 || colPick > 7)
+        {
+            Console.WriteLine("Please pick a column between 1 and 7");
+            return false;
+        }
+
+        int col = colPick - 1;        
+
+        int row = 5;
+        while (Spots[row, col] != '-' && row > 0) {
+            row--;
+        }
+
+        if (Spots[row, col] != '-')
+        {
+            Console.WriteLine("Spot unavailable!");
+            Console.WriteLine(this);
+            return false;
+        }
+        Spots[row, col] = symbol;
+        Console.WriteLine(this);
+        return true;
+    }
+
+    //Draw - ToString()
+    public override string ToString()
+    {
+        string displayBoard = "";
+        for(int row = 0; row < 6; row++)
+        {
+            for (int col = 0; col < 7; col++)
+            {                
+                displayBoard += Spots[row, col];                
+                if (col == 6) {
+                    displayBoard += "\n";
+                }
+            }
+        }        
+        return displayBoard;
+    }
+
+    //ResetBoard
+}
+//CLASS PLAYER
+public abstract class Player { 
+    public int Wins { get; set; }
+    public int GamesPlayed { get; set; }
+    public char Symbol { get; set; }
+    public string Name { get; set; }
+
+    //Constructor        
+
+    //Play
+    public abstract bool Play(int colDroped, Player player, Game game);
+}
+//CLASS PLAYER HUMAN
+public class Human : Player {     
+    //Play()
+    public override bool Play(int colDroped, Player player, Game game) {
+        Console.WriteLine("Human");
+        return game.GameBoard.FillSpot(colDroped, player.Symbol);
+    }
+    //ToString - Return name, game wins and games played
+}
+//CLASS PLAYER COMPUTER
+public class Computer: Player
+{    
+    //Play() - in computer case colDroped always = 0
+    public override bool Play(int colDroped, Player aiPlayer, Game game)
+    {
+        int colToDrop = -1;
+
+        //DESCRIPTION PRO COMPUTER PLAYER (AI)
+        //1 - IS THERE ANY SPOT TO WIN?
+        colToDrop = SpotToWin(game);
+        //2 - IS THERE ANY SPOT WHICH THE OTHER PLAYER WILL WIN?
+        if (colToDrop == -1)
+            colToDrop = SpotToLoose(game);
+        //3 - IS THERE ANY SPOT THAT LEAVES ME 3 POSSIBILITIES TO WIN?            
+        //4 - IS THERE ANY SPOT THAT LEAVES ME 2 POSSIBILITIES TO WIN?
+        //5 - IS THERE ANY SPOT THAT LEAVES ME 1 POSSIBILITY TO WIN?
+        if (colToDrop == -1)
+            colToDrop = BestSpot(game);
+        //6 - IS THERE ANY SPOT THAT LEAVES THE OTHER PLAYER 3 POSSIBILITIES TO WIN?
+        //7 - IS THERE ANY SPOT THAT LEAVES THE OTHER PLAYER 2 POSSIBILITIES TO WIN?
+        //8 - IS THERE ANY SPOT THAT LEAVES THE OTHER PLAYER 1 POSSIBILITY TO WIN?
+        if (colToDrop == -1)
+        //9 - PLACE COIN IN ANY LOWER AVAILABLE SPOT
+        if (colToDrop == -1)
+            colToDrop = FirstAvailable(game);
+                
+        game.GameBoard.FillSpot(colToDrop, aiPlayer.Symbol);
+        return true;
+    }
+
+    public int BestSpot(Game game) {
+        int MaxChancesToWin = 0;
+        int colWithMaxChance = -1;
+        for(int row = 5; row >= 0; row--) {
+            for (int col = 0; col < 7; col++) {
+                //drop in the available spot
+                if (game.GameBoard.Spots[row, col] == '-') {
+                    int chancesInThisSpot = 0;
+                    game.GameBoard.Spots[row, col] = Symbol;
+                    //check around if there is a chance to win
+                    //down-left                    
+                    if (CheckSpot(row + 1, col - 1, game))
+                        chancesInThisSpot++;
+                    //left
+                    if (CheckSpot(row, col - 1, game))
+                        chancesInThisSpot++;
+                    //up-left
+                    if (CheckSpot(row - 1, col - 1, game))
+                        chancesInThisSpot++;
+                    //down-right
+                    if (CheckSpot(row + 1, col + 1, game))
+                        chancesInThisSpot++;
+                    //right
+                    if (CheckSpot(row, col + 1, game))
+                        chancesInThisSpot++;
+                    //up-right
+                    if (CheckSpot(row - 1, col + 1, game))
+                        chancesInThisSpot++;
+                    //up
+                    if (CheckSpot(row + 1, col, game))
+                        chancesInThisSpot++;
+                    //return the spot to orignal value
+                    game.GameBoard.Spots[row, col] = '-';
+
+                    //if this spot has more chances of winnings spots then
+                    if (MaxChancesToWin < chancesInThisSpot) {
+                        MaxChancesToWin = chancesInThisSpot;
+                        colWithMaxChance = col;
+                    }
+                }
+            }
+        }
+        return colWithMaxChance;
+    }
+
+    //FUNCTION TO CHECK THE POSSIBILITY OF A WIN IN A HYPOTETICAL FUTURE PLAY
+    private bool CheckSpot(int row, int col, Game game) {
+        bool isThereAWin = false;
+        if (row > -1 && row < 6 && col > -1 && col < 7) {
+            if (game.GameBoard.Spots[row, col] == '-') {
+                game.GameBoard.Spots[row, col] = game.CurrentPlayer.Symbol;
+                isThereAWin = game.GameWin(true);
+                game.GameBoard.Spots[row, col] = '-';
+            }            
+        }        
+        return isThereAWin;
+    }
+
+    public int SpotToWin(Game game) {
+        for (int row = 5; row >= 0; row--)
+        {
+            for (int col = 0; col < 7; col++)
+            {
+                if (CheckSpot(row, col, game))
+                    return col+1;                                                
+            }
+        }        
+        return -1;
+    }
+
+    public int SpotToLoose(Game game)
+    {
+        //change the current player to simulate game winning        
+        int otherPlayerIndex = game.Players.FindIndex(f => f.Name != this.Name);
+        game.CurrentPlayer = game.Players[otherPlayerIndex];
+
+        for (int row = 5; row >= 0; row--)
+        {
+            for (int col = 0; col < 7; col++)
+            {
+                if (game.GameBoard.Spots[row, col] == '-')
+                {
+                    if (row < 5)
+                    {
+                        if (game.GameBoard.Spots[row + 1, col] == '-')
+                            continue;
+                    }
+                    if (CheckSpot(row, col, game))
+                        return col+1;                    
+                }
+            }
+        }
+        game.CurrentPlayer = this;
+        return -1;
+    }
+
+    public int FirstAvailable(Game game) {        
+        for (int row = 5; row >= 0; row--) {
+            for (int col = 0; col < 7; col++) {
+                if (game.GameBoard.Spots[row, col] == '-') {
+                    //it needs to return +1 because the simulation of the human picking the column 
+                    //AND it is how the mehtod FILLSPOT of the BOARD class works. Receiving the human
+                    //column which is index+1
+
+                    //after get the column check if there is any possibility to loose and picks the
+                    //next spot until get one free spot
+                    game.GameBoard.Spots[row, col] = Symbol;
+                    int spotToloose = SpotToLoose(game);
+                    game.GameBoard.Spots[row, col] = '-';
+                    if (spotToloose == -1) {
+                        return (col + 1);
+                    }                    
+                }
+            }
+        };
+        return -1;
+    }
+}
+//MAIN PROGRAM
 public class ConnectFour
 {
     private static void Main(string[] args)
     {
         //Start game screen
-        GAME ConnectFour = new GAME();
-        /*
-        [1] Start New Game
-        [2] Instructions
-        [3] Exit
-        */
-        int action = ConnectFour.GAMESTARTSCREEN();
-
-        switch (action) {
-            case 1:
-                Console.WriteLine("START GAME");
-                //GAME LOOP
+        Game ConnectFour = new Game();
+        int action;        
+        do
+        {
+            action = ConnectFour.GAMESTARTSCREEN();
+            switch (action)
+            {
+                case 1:
+                case 2:
+                    //GAME LOOP
                     //Players handle methods
+                    ConnectFour.SetPlayers(action);
                     //Game play
+                    ConnectFour.GamePlay();
                     //Game over screen
-                    //Play again?
-                break;
-            case 2:
-                //CALL GAME INFO SCREEN
-                Console.WriteLine("INFORMATION");
-                break;
-            case 3:
-                break;                
-        };        
+                    //Play again?                    
+                    break;
+                case 3:
+                    return;
+            }
+        } while (action != 3);                
     }
 } 
