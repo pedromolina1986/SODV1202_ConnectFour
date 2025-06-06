@@ -67,7 +67,8 @@ using System;
 using System.Numerics;
 using System.Collections.Generic;
 
-//CLASS GAME
+//CLASS GAME - Descided to create as a static class because we do not need to instantiate it
+//and it is immutable during this application giving global settings to other classes and main program
 public static class Game{
 
     public static Board GameBoard = new Board();
@@ -297,7 +298,6 @@ public static class Game{
     public static void GameReset() {
         //Clear list od players
         Players.Clear();
-
         //Create a new clean board
         GameBoard = new Board();
     }
@@ -360,9 +360,7 @@ public class Board {
             }
         }        
         return displayBoard;
-    }
-
-    //ResetBoard
+    }    
 }
 //CLASS PLAYER
 public abstract class Player { 
@@ -371,7 +369,8 @@ public abstract class Player {
     public char Symbol { get; set; }
     public string Name { get; set; }
 
-    //Constructor        
+    //Constructor
+    //There is no need of a constructor in this abstract class
 
     //Play
     public abstract bool Play(int colDroped, Player player);
@@ -474,6 +473,7 @@ public class Computer: Player
         return isThereAWin;
     }
 
+    //check if it is a winning play
     private int SpotToWin() {
         for (int row = 5; row >= 0; row--)
         {
@@ -485,7 +485,7 @@ public class Computer: Player
         }        
         return -1;
     }
-
+    //check if it is a loosing play
     private int SpotToLoose()
     {
         //change the current player to simulate game winning        
@@ -511,7 +511,8 @@ public class Computer: Player
         Game.CurrentPlayer = this;
         return -1;
     }
-
+    
+    //check the first not loosing play available
     private int FirstAvailable() {        
         for (int row = 5; row >= 0; row--) {
             for (int col = 0; col < 7; col++) {
