@@ -554,8 +554,8 @@ public class ConnectFour
                     Game.SetPlayers(action);
                     //Game play
                     Game.GamePlay();
-                    //Game over screen
-                    //Play again?                    
+                    //Game over screen - Mikyle
+                    //Play again? - Mikyle                    
                     break;
                 case 3:
                     //Exit
