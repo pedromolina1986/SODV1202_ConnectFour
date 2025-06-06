@@ -255,7 +255,7 @@ public static class Game{
     }
 
     //SET RANK
-    public static void SetRank(Player winner) {     
+    private static void SetRank(Player winner) {     
         //find winner
         int indexWinner = Rank.FindIndex(f => f.Name == winner.Name);
         if (indexWinner > -1)
@@ -295,7 +295,7 @@ public static class Game{
     }
 
     //RESET GAME
-    public static void GameReset() {
+    private static void GameReset() {
         //Clear list od players
         Players.Clear();
         //Create a new clean board
@@ -542,11 +542,11 @@ public class Computer: Player
 public class ConnectFour
 {
     private static void Main(string[] args)
-    {
-        //Start game screen        
+    {        
         int action;        
         do
         {
+            //Start game screen        
             action = Game.GAMESTARTSCREEN();
             switch (action)
             {
