@@ -102,7 +102,7 @@ public static class Game{
             Console.WriteLine(@"                            POWER RANK                               ");
             Console.WriteLine(@"=====================================================================");
             foreach (Player player in Rank) {
-                Console.WriteLine(player.Wins + " WINS of ("+player.GamesPlayed+") | " + player.Name);
+                Console.WriteLine(player.Wins + " WINS of ("+player.GamesPlayed+") | " + player.Name); // CHANGE FOR THE TOSTRING METHOD
             }
             Console.WriteLine(@"=====================================================================");
         }
@@ -382,7 +382,7 @@ public class Human : Player {
         Console.WriteLine("Human");
         return Game.GameBoard.FillSpot(colDroped, player.Symbol);
     }
-    //ToString - Return name, game wins and games played
+    //ToString - Return name, game wins and games played - Freddy
 }
 //CLASS PLAYER COMPUTER
 public class Computer: Player
@@ -534,6 +534,9 @@ public class Computer: Player
         };
         return -1;
     }
+
+    //TOSTRING - Freddy
+
 }
 //MAIN PROGRAM
 public class ConnectFour
