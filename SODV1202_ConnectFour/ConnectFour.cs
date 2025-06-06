@@ -410,24 +410,35 @@ public class Computer: Player
         //2 - IS THERE ANY SPOT WHICH THE OTHER PLAYER WILL WIN?
         if (colToDrop == -1)
             colToDrop = SpotToLoose();
+
         //3 - IS THERE ANY SPOT THAT LEAVES ME 3 POSSIBILITIES TO WIN?            
         //4 - IS THERE ANY SPOT THAT LEAVES ME 2 POSSIBILITIES TO WIN?
         //5 - IS THERE ANY SPOT THAT LEAVES ME 1 POSSIBILITY TO WIN?
         if (colToDrop == -1)
            colToDrop = BestSpot();
+
         //6 - IS THERE ANY SPOT THAT LEAVES THE OTHER PLAYER 3 POSSIBILITIES TO WIN?
         //7 - IS THERE ANY SPOT THAT LEAVES THE OTHER PLAYER 2 POSSIBILITIES TO WIN?
         //8 - IS THERE ANY SPOT THAT LEAVES THE OTHER PLAYER 1 POSSIBILITY TO WIN?
         if (colToDrop == -1)
+            colToDrop = BestSpot(true);//param true indicates that needs to change to the other player
+
         //9 - PLACE COIN IN ANY LOWER AVAILABLE SPOT
         if (colToDrop == -1)
             colToDrop = FirstAvailable();
                 
+        //fill the chosen spot
         Game.GameBoard.FillSpot(colToDrop, aiPlayer.Symbol);
         return true;
     }
 
-    private int BestSpot() {
+    private int BestSpot(bool otherPlayer = false) {
+        //if thee check is to loose
+        int otherPlayerIndex = 0;
+        if (otherPlayer) {
+            otherPlayerIndex = Game.Players.FindIndex(f => f.Name != this.Name);
+            Game.CurrentPlayer = Game.Players[otherPlayerIndex];
+        }
         int MaxChancesToWin = 0;
         int colWithMaxChance = -1;
         for(int row = Game.Rows-1; row >= 0; row--) {
@@ -469,6 +480,9 @@ public class Computer: Player
                 }
             }
         }
+        if (otherPlayer) {
+            Game.CurrentPlayer = this;
+        }        
         return colWithMaxChance;
     }
 
