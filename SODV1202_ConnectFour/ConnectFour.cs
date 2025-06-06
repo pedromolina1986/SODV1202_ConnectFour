@@ -70,8 +70,8 @@ using System.Collections.Generic;
 //CLASS GAME - Descided to create as a static class because we do not need to instantiate it
 //and it is immutable during this application giving global settings to other classes and main program
 public static class Game{
-    public static int Rows = 10;
-    public static int Cols = 11;
+    public static int Rows = 6;
+    public static int Cols = 7;
     public static Board GameBoard = new Board();
     public static List<Player> Players = new List<Player>();
     public static List<Player> Rank = new List<Player>();
@@ -209,21 +209,24 @@ public static class Game{
                 if (GameBoard.Spots[row, col] == CurrentPlayer.Symbol) {
 
                     //vertical
-                    if (GameBoard.Spots[row, col] == GameBoard.Spots[row - 1, col] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 2, col] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 3, col]) {
-                        isThereWinner = true;
-                    };
+                    if (row - 2 > 0) {                        
+                        if (GameBoard.Spots[row, col] == GameBoard.Spots[row - 1, col] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 2, col] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 3, col])
+                        {
+                            isThereWinner = true;
+                        }                        
+                    }                    
 
                     //horizontal
-                    if (col < Game.Cols-2) {                        
+                    if (col + 3 < Game.Cols) {                        
                         if (GameBoard.Spots[row, col] == GameBoard.Spots[row, col + 1] && GameBoard.Spots[row, col] == GameBoard.Spots[row, col + 2] && GameBoard.Spots[row, col] == GameBoard.Spots[row, col + 3])
                         {
                             isThereWinner = true;
                         }                        
                     };
 
+                    //diagonal
                     if (row - 2 > 0) {
                         //Diganoal left
-                        
                         if (col + 2 < Game.Cols - 1)
                         {
                             if (GameBoard.Spots[row, col] == GameBoard.Spots[row - 1, col + 1] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 2, col + 2] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 3, col + 3])
