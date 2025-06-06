@@ -1,4 +1,13 @@
 ﻿/*
+Final Project
+GROUP: N
+Students Names and IDs: Pedro Molina(467777)
+Date: 2025-06-05
+Course: SODV1202: Introduction to ObjectOriented Programming
+Instructor: Michael Dorsey
+*/
+
+/*
 REFERENCES:
 
 COMPUTER PLAYER SIMULATION:
@@ -59,27 +68,20 @@ using System.Numerics;
 using System.Collections.Generic;
 
 //CLASS GAME
-public class Game{
+public static class Game{
+
+    public static Board GameBoard = new Board();
+    public static List<Player> Players = new List<Player>();
+    public static List<Player> Rank = new List<Player>();
+    public static Player CurrentPlayer;
     
-    public Board GameBoard { get; set; }
-    public List<Player> Players { get; set; }
-    public List<Player> Rank { get; set; }
-    public Player CurrentPlayer { get; set; }
-
-    //CONSTRUCTOR
-    public Game() {
-        GameBoard = new Board();
-        Players = new List<Player>();
-        Rank = new List<Player>();        
-    }
-
     //GAME START SCREEN
     /*
      REFERENCES: 
         - Console title: https://learn.microsoft.com/en-us/dotnet/api/system.console.title?view=net-9.0
         - Console Foreground color: https://learn.microsoft.com/en-us/dotnet/api/system.console.foregroundcolor?view=net-9.0
      */
-    public int GAMESTARTSCREEN(bool playAgain = false)
+    public static int GAMESTARTSCREEN(bool playAgain = false)
     {
         Console.Title = "Connect Four - Console Edition";
         Console.ForegroundColor = ConsoleColor.Yellow;
@@ -127,7 +129,7 @@ public class Game{
         return option;
     }
     //SET PLAYERS
-    public void SetPlayers(int gameType) {
+    public static void SetPlayers(int gameType) {
         Human newPlayer1 = new Human();
         Console.Write("Player 1 - Type your name and press ENTER:");
         newPlayer1.Name = Console.ReadLine();
@@ -153,7 +155,7 @@ public class Game{
     }
 
     //GAME PLAY
-    public void GamePlay()
+    public static void GamePlay()
     {
         Console.Write(GameBoard);
         string col;
@@ -173,7 +175,7 @@ public class Game{
                 else {
                     intCol = 0;
                 }
-            } while (!CurrentPlayer.Play(intCol, CurrentPlayer, this));
+            } while (!CurrentPlayer.Play(intCol, CurrentPlayer));
 
             //check end game
             endGame = GameWin() || GameTie();
@@ -197,7 +199,7 @@ public class Game{
 
     //check if is there a winner
     //hypotesis will check with a simulated board if there will be a winner
-    public bool GameWin(bool hypotesis = false) 
+    public static bool GameWin(bool hypotesis = false) 
     {                
         bool isThereWinner = false;
         for (int row = 5; row > 1; row--) {
@@ -240,7 +242,7 @@ public class Game{
     }
 
     //check game tie
-    public bool GameTie()
+    public static bool GameTie()
     {
         foreach (char spot in GameBoard.Spots) {
             if (spot == '-') {
@@ -252,7 +254,7 @@ public class Game{
     }
 
     //SET RANK
-    public void SetRank(Player winner) {     
+    public static void SetRank(Player winner) {     
         //find winner
         int indexWinner = Rank.FindIndex(f => f.Name == winner.Name);
         if (indexWinner > -1)
@@ -292,7 +294,7 @@ public class Game{
     }
 
     //RESET GAME
-    public void GameReset() {
+    public static void GameReset() {
         //Clear list od players
         Players.Clear();
 
@@ -372,14 +374,14 @@ public abstract class Player {
     //Constructor        
 
     //Play
-    public abstract bool Play(int colDroped, Player player, Game game);
+    public abstract bool Play(int colDroped, Player player);
 }
 //CLASS PLAYER HUMAN
 public class Human : Player {     
     //Play()
-    public override bool Play(int colDroped, Player player, Game game) {
+    public override bool Play(int colDroped, Player player) {
         Console.WriteLine("Human");
-        return game.GameBoard.FillSpot(colDroped, player.Symbol);
+        return Game.GameBoard.FillSpot(colDroped, player.Symbol);
     }
     //ToString - Return name, game wins and games played
 }
@@ -387,66 +389,66 @@ public class Human : Player {
 public class Computer: Player
 {    
     //Play() - in computer case colDroped always = 0
-    public override bool Play(int colDroped, Player aiPlayer, Game game)
+    public override bool Play(int colDroped, Player aiPlayer)
     {
         int colToDrop = -1;
 
         //DESCRIPTION PRO COMPUTER PLAYER (AI)
         //1 - IS THERE ANY SPOT TO WIN?
-        colToDrop = SpotToWin(game);
+        colToDrop = SpotToWin();
         //2 - IS THERE ANY SPOT WHICH THE OTHER PLAYER WILL WIN?
         if (colToDrop == -1)
-            colToDrop = SpotToLoose(game);
+            colToDrop = SpotToLoose();
         //3 - IS THERE ANY SPOT THAT LEAVES ME 3 POSSIBILITIES TO WIN?            
         //4 - IS THERE ANY SPOT THAT LEAVES ME 2 POSSIBILITIES TO WIN?
         //5 - IS THERE ANY SPOT THAT LEAVES ME 1 POSSIBILITY TO WIN?
         if (colToDrop == -1)
-            colToDrop = BestSpot(game);
+            colToDrop = BestSpot();
         //6 - IS THERE ANY SPOT THAT LEAVES THE OTHER PLAYER 3 POSSIBILITIES TO WIN?
         //7 - IS THERE ANY SPOT THAT LEAVES THE OTHER PLAYER 2 POSSIBILITIES TO WIN?
         //8 - IS THERE ANY SPOT THAT LEAVES THE OTHER PLAYER 1 POSSIBILITY TO WIN?
         if (colToDrop == -1)
         //9 - PLACE COIN IN ANY LOWER AVAILABLE SPOT
         if (colToDrop == -1)
-            colToDrop = FirstAvailable(game);
+            colToDrop = FirstAvailable();
                 
-        game.GameBoard.FillSpot(colToDrop, aiPlayer.Symbol);
+        Game.GameBoard.FillSpot(colToDrop, aiPlayer.Symbol);
         return true;
     }
 
-    public int BestSpot(Game game) {
+    private int BestSpot() {
         int MaxChancesToWin = 0;
         int colWithMaxChance = -1;
         for(int row = 5; row >= 0; row--) {
             for (int col = 0; col < 7; col++) {
                 //drop in the available spot
-                if (game.GameBoard.Spots[row, col] == '-') {
+                if (Game.GameBoard.Spots[row, col] == '-') {
                     int chancesInThisSpot = 0;
-                    game.GameBoard.Spots[row, col] = Symbol;
+                    Game.GameBoard.Spots[row, col] = Symbol;
                     //check around if there is a chance to win
                     //down-left                    
-                    if (CheckSpot(row + 1, col - 1, game))
+                    if (CheckSpot(row + 1, col - 1))
                         chancesInThisSpot++;
                     //left
-                    if (CheckSpot(row, col - 1, game))
+                    if (CheckSpot(row, col - 1))
                         chancesInThisSpot++;
                     //up-left
-                    if (CheckSpot(row - 1, col - 1, game))
+                    if (CheckSpot(row - 1, col - 1))
                         chancesInThisSpot++;
                     //down-right
-                    if (CheckSpot(row + 1, col + 1, game))
+                    if (CheckSpot(row + 1, col + 1))
                         chancesInThisSpot++;
                     //right
-                    if (CheckSpot(row, col + 1, game))
+                    if (CheckSpot(row, col + 1))
                         chancesInThisSpot++;
                     //up-right
-                    if (CheckSpot(row - 1, col + 1, game))
+                    if (CheckSpot(row - 1, col + 1))
                         chancesInThisSpot++;
                     //up
-                    if (CheckSpot(row + 1, col, game))
+                    if (CheckSpot(row + 1, col))
                         chancesInThisSpot++;
                     //return the spot to orignal value
-                    game.GameBoard.Spots[row, col] = '-';
+                    Game.GameBoard.Spots[row, col] = '-';
 
                     //if this spot has more chances of winnings spots then
                     if (MaxChancesToWin < chancesInThisSpot) {
@@ -460,69 +462,69 @@ public class Computer: Player
     }
 
     //FUNCTION TO CHECK THE POSSIBILITY OF A WIN IN A HYPOTETICAL FUTURE PLAY
-    private bool CheckSpot(int row, int col, Game game) {
+    private bool CheckSpot(int row, int col) {
         bool isThereAWin = false;
         if (row > -1 && row < 6 && col > -1 && col < 7) {
-            if (game.GameBoard.Spots[row, col] == '-') {
-                game.GameBoard.Spots[row, col] = game.CurrentPlayer.Symbol;
-                isThereAWin = game.GameWin(true);
-                game.GameBoard.Spots[row, col] = '-';
+            if (Game.GameBoard.Spots[row, col] == '-') {
+                Game.GameBoard.Spots[row, col] = Game.CurrentPlayer.Symbol;
+                isThereAWin = Game.GameWin(true);
+                Game.GameBoard.Spots[row, col] = '-';
             }            
         }        
         return isThereAWin;
     }
 
-    public int SpotToWin(Game game) {
+    private int SpotToWin() {
         for (int row = 5; row >= 0; row--)
         {
             for (int col = 0; col < 7; col++)
             {
-                if (CheckSpot(row, col, game))
+                if (CheckSpot(row, col))
                     return col+1;                                                
             }
         }        
         return -1;
     }
 
-    public int SpotToLoose(Game game)
+    private int SpotToLoose()
     {
         //change the current player to simulate game winning        
-        int otherPlayerIndex = game.Players.FindIndex(f => f.Name != this.Name);
-        game.CurrentPlayer = game.Players[otherPlayerIndex];
+        int otherPlayerIndex = Game.Players.FindIndex(f => f.Name != this.Name);
+        Game.CurrentPlayer = Game.Players[otherPlayerIndex];
 
         for (int row = 5; row >= 0; row--)
         {
             for (int col = 0; col < 7; col++)
             {
-                if (game.GameBoard.Spots[row, col] == '-')
+                if (Game.GameBoard.Spots[row, col] == '-')
                 {
                     if (row < 5)
                     {
-                        if (game.GameBoard.Spots[row + 1, col] == '-')
+                        if (Game.GameBoard.Spots[row + 1, col] == '-')
                             continue;
                     }
-                    if (CheckSpot(row, col, game))
+                    if (CheckSpot(row, col))
                         return col+1;                    
                 }
             }
         }
-        game.CurrentPlayer = this;
+        Game.CurrentPlayer = this;
         return -1;
     }
 
-    public int FirstAvailable(Game game) {        
+    private int FirstAvailable() {        
         for (int row = 5; row >= 0; row--) {
             for (int col = 0; col < 7; col++) {
-                if (game.GameBoard.Spots[row, col] == '-') {
+                if (Game.GameBoard.Spots[row, col] == '-') {
                     //it needs to return +1 because the simulation of the human picking the column 
                     //AND it is how the mehtod FILLSPOT of the BOARD class works. Receiving the human
                     //column which is index+1
 
                     //after get the column check if there is any possibility to loose and picks the
                     //next spot until get one free spot
-                    game.GameBoard.Spots[row, col] = Symbol;
-                    int spotToloose = SpotToLoose(game);
-                    game.GameBoard.Spots[row, col] = '-';
+                    Game.GameBoard.Spots[row, col] = Symbol;
+                    int spotToloose = SpotToLoose();
+                    Game.GameBoard.Spots[row, col] = '-';
                     if (spotToloose == -1) {
                         return (col + 1);
                     }                    
@@ -537,25 +539,25 @@ public class ConnectFour
 {
     private static void Main(string[] args)
     {
-        //Start game screen
-        Game ConnectFour = new Game();
+        //Start game screen        
         int action;        
         do
         {
-            action = ConnectFour.GAMESTARTSCREEN();
+            action = Game.GAMESTARTSCREEN();
             switch (action)
             {
                 case 1:
                 case 2:
                     //GAME LOOP
                     //Players handle methods
-                    ConnectFour.SetPlayers(action);
+                    Game.SetPlayers(action);
                     //Game play
-                    ConnectFour.GamePlay();
+                    Game.GamePlay();
                     //Game over screen
                     //Play again?                    
                     break;
                 case 3:
+                    //Exit
                     return;
             }
         } while (action != 3);                
