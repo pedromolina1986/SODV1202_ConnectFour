@@ -70,7 +70,8 @@ using System.Collections.Generic;
 //CLASS GAME - Descided to create as a static class because we do not need to instantiate it
 //and it is immutable during this application giving global settings to other classes and main program
 public static class Game{
-
+    public static int Rows = 10;
+    public static int Cols = 11;
     public static Board GameBoard = new Board();
     public static List<Player> Players = new List<Player>();
     public static List<Player> Rank = new List<Player>();
@@ -82,7 +83,7 @@ public static class Game{
         - Console title: https://learn.microsoft.com/en-us/dotnet/api/system.console.title?view=net-9.0
         - Console Foreground color: https://learn.microsoft.com/en-us/dotnet/api/system.console.foregroundcolor?view=net-9.0
      */
-    public static int GAMESTARTSCREEN(bool playAgain = false)
+    public static int GameStartScreen(bool playAgain = false)
     {
         Console.Title = "Connect Four - Console Edition";
         Console.ForegroundColor = ConsoleColor.Yellow;
@@ -124,7 +125,7 @@ public static class Game{
         option = int.Parse(s: Console.ReadLine());
         if (option < 1 || option > 3)
         {
-            GAMESTARTSCREEN();
+            GameStartScreen();
         }
 
         return option;
@@ -203,34 +204,42 @@ public static class Game{
     public static bool GameWin(bool hypotesis = false) 
     {                
         bool isThereWinner = false;
-        for (int row = 5; row > 1; row--) {
-            for (int col = 0; col < 7; col++) {
+        for (int row = Game.Rows-1; row > 2; row--) {
+            for (int col = 0; col < Game.Cols; col++) {
                 if (GameBoard.Spots[row, col] == CurrentPlayer.Symbol) {
 
                     //vertical
-                    if (GameBoard.Spots[row, col] == GameBoard.Spots[row - 1, col] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 2, col]) {
+                    if (GameBoard.Spots[row, col] == GameBoard.Spots[row - 1, col] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 2, col] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 3, col]) {
                         isThereWinner = true;
                     };
 
                     //horizontal
-                    if (col < 5) {                        
-                        if (GameBoard.Spots[row, col] == GameBoard.Spots[row, col + 1] && GameBoard.Spots[row, col] == GameBoard.Spots[row, col + 2])
+                    if (col < Game.Cols-2) {                        
+                        if (GameBoard.Spots[row, col] == GameBoard.Spots[row, col + 1] && GameBoard.Spots[row, col] == GameBoard.Spots[row, col + 2] && GameBoard.Spots[row, col] == GameBoard.Spots[row, col + 3])
                         {
                             isThereWinner = true;
                         }                        
                     };
-                    
-                    //Diganoals from the midle
-                    if (col > 0 && col < 6 && row < 5) {                        
-                        if (GameBoard.Spots[row, col] == GameBoard.Spots[row + 1, col+1] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 1, col - 1])
+
+                    if (row - 2 > 0) {
+                        //Diganoal left
+                        
+                        if (col + 2 < Game.Cols - 1)
                         {
-                            isThereWinner = true;
+                            if (GameBoard.Spots[row, col] == GameBoard.Spots[row - 1, col + 1] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 2, col + 2] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 3, col + 3])
+                            {
+                                isThereWinner = true;
+                            }
                         }
-                        if (GameBoard.Spots[row, col] == GameBoard.Spots[row + 1, col - 1] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 1, col + 1])
+                        //diagonal right
+                        if (col - 2 > 0)
                         {
-                            isThereWinner = true;
+                            if (GameBoard.Spots[row, col] == GameBoard.Spots[row - 1, col - 1] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 2, col - 2] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 3, col - 3])
+                            {
+                                isThereWinner = true;
+                            }
                         }
-                    }
+                    }                    
                 }
             } 
         }
@@ -308,10 +317,10 @@ public class Board {
 
     //Constructor    
     public Board() {        
-        Spots = new char[6,7];
-        for (int row = 0; row < 6; row++)
+        Spots = new char[Game.Rows,Game.Cols];
+        for (int row = 0; row < Game.Rows; row++)
         {
-            for (int col = 0; col < 7; col++)
+            for (int col = 0; col < Game.Cols; col++)
             {
                 Spots[row, col] = '-';                
             }
@@ -321,15 +330,15 @@ public class Board {
     //FillSpot
     public bool FillSpot(int colPick, char symbol) {
 
-        if (colPick < 1 || colPick > 7)
+        if (colPick < 1 || colPick > Game.Cols)
         {
-            Console.WriteLine("Please pick a column between 1 and 7");
+            Console.WriteLine("Please pick a column between 1 and " + Game.Cols);
             return false;
         }
 
         int col = colPick - 1;        
 
-        int row = 5;
+        int row = Game.Rows-1;
         while (Spots[row, col] != '-' && row > 0) {
             row--;
         }
@@ -349,12 +358,12 @@ public class Board {
     public override string ToString()
     {
         string displayBoard = "";
-        for(int row = 0; row < 6; row++)
+        for(int row = 0; row < Game.Rows; row++)
         {
-            for (int col = 0; col < 7; col++)
+            for (int col = 0; col < Game.Cols; col++)
             {                
                 displayBoard += Spots[row, col];                
-                if (col == 6) {
+                if (col == Game.Cols-1) {
                     displayBoard += "\n";
                 }
             }
@@ -402,7 +411,7 @@ public class Computer: Player
         //4 - IS THERE ANY SPOT THAT LEAVES ME 2 POSSIBILITIES TO WIN?
         //5 - IS THERE ANY SPOT THAT LEAVES ME 1 POSSIBILITY TO WIN?
         if (colToDrop == -1)
-            colToDrop = BestSpot();
+           colToDrop = BestSpot();
         //6 - IS THERE ANY SPOT THAT LEAVES THE OTHER PLAYER 3 POSSIBILITIES TO WIN?
         //7 - IS THERE ANY SPOT THAT LEAVES THE OTHER PLAYER 2 POSSIBILITIES TO WIN?
         //8 - IS THERE ANY SPOT THAT LEAVES THE OTHER PLAYER 1 POSSIBILITY TO WIN?
@@ -418,8 +427,8 @@ public class Computer: Player
     private int BestSpot() {
         int MaxChancesToWin = 0;
         int colWithMaxChance = -1;
-        for(int row = 5; row >= 0; row--) {
-            for (int col = 0; col < 7; col++) {
+        for(int row = Game.Rows-1; row >= 0; row--) {
+            for (int col = 0; col < Game.Cols-1; col++) {
                 //drop in the available spot
                 if (Game.GameBoard.Spots[row, col] == '-') {
                     int chancesInThisSpot = 0;
@@ -463,7 +472,7 @@ public class Computer: Player
     //FUNCTION TO CHECK THE POSSIBILITY OF A WIN IN A HYPOTETICAL FUTURE PLAY
     private bool CheckSpot(int row, int col) {
         bool isThereAWin = false;
-        if (row > -1 && row < 6 && col > -1 && col < 7) {
+        if (row > -1 && row < Game.Rows && col > -1 && col < Game.Cols) {
             if (Game.GameBoard.Spots[row, col] == '-') {
                 Game.GameBoard.Spots[row, col] = Game.CurrentPlayer.Symbol;
                 isThereAWin = Game.GameWin(true);
@@ -475,9 +484,9 @@ public class Computer: Player
 
     //check if it is a winning play
     private int SpotToWin() {
-        for (int row = 5; row >= 0; row--)
+        for (int row = Game.Rows-1; row >= 0; row--)
         {
-            for (int col = 0; col < 7; col++)
+            for (int col = 0; col < Game.Cols; col++)
             {
                 if (CheckSpot(row, col))
                     return col+1;                                                
@@ -492,19 +501,21 @@ public class Computer: Player
         int otherPlayerIndex = Game.Players.FindIndex(f => f.Name != this.Name);
         Game.CurrentPlayer = Game.Players[otherPlayerIndex];
 
-        for (int row = 5; row >= 0; row--)
+        for (int row = Game.Rows-1; row >= 0; row--)
         {
-            for (int col = 0; col < 7; col++)
+            for (int col = 0; col < Game.Cols; col++)
             {
                 if (Game.GameBoard.Spots[row, col] == '-')
                 {
-                    if (row < 5)
+                    if (row < Game.Rows-1)
                     {
                         if (Game.GameBoard.Spots[row + 1, col] == '-')
                             continue;
                     }
-                    if (CheckSpot(row, col))
-                        return col+1;                    
+                    if (CheckSpot(row, col)) {
+                        Game.CurrentPlayer = this;
+                        return col + 1;
+                    }                    
                 }
             }
         }
@@ -513,10 +524,15 @@ public class Computer: Player
     }
     
     //check the first not loosing play available
-    private int FirstAvailable() {        
-        for (int row = 5; row >= 0; row--) {
-            for (int col = 0; col < 7; col++) {
+    private int FirstAvailable() {
+        //in case of lost game get the fisrt found
+        int firstFound = -1;
+        for (int row = Game.Rows-1; row >= 0; row--) {
+            for (int col = 0; col < Game.Cols; col++) {
                 if (Game.GameBoard.Spots[row, col] == '-') {
+                    if (firstFound < 0) {
+                        firstFound = col;
+                    }
                     //it needs to return +1 because the simulation of the human picking the column 
                     //AND it is how the mehtod FILLSPOT of the BOARD class works. Receiving the human
                     //column which is index+1
@@ -532,7 +548,7 @@ public class Computer: Player
                 }
             }
         };
-        return -1;
+        return firstFound;
     }
 
     //TOSTRING - Freddy
@@ -547,7 +563,7 @@ public class ConnectFour
         do
         {
             //Start game screen        
-            action = Game.GAMESTARTSCREEN();
+            action = Game.GameStartScreen();
             switch (action)
             {
                 case 1:
