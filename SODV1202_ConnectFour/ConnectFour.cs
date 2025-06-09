@@ -75,7 +75,7 @@ public static class Game{
     public static Board GameBoard = new Board();
     public static List<Player> Players = new List<Player>();
     public static List<Player> Rank = new List<Player>();
-    public static Player CurrentPlayer;
+    public static Player? CurrentPlayer;
     
     //GAME START SCREEN
     /*
