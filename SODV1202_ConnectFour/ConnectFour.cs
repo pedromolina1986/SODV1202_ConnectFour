@@ -297,6 +297,7 @@ public static class Game{
 
         Rank.Sort((a, b) =>
         {
+            //IComparable
             int result = b.Wins.CompareTo(a.Wins); // descending by Wins
             if (result == 0)
             {
