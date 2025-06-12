@@ -386,13 +386,13 @@ public abstract class Player {
     //There is no need of a constructor in this abstract class
 
     //Play
-    public abstract bool Play(int colDroped, Player player);
+    public abstract bool Play(int colDropped, Player player);
 }
 //CLASS PLAYER HUMAN
 public class Human : Player {     
     //Play()
-    public override bool Play(int colDroped, Player player) {        
-        return Game.GameBoard.FillSpot(colDroped, player.Symbol);
+    public override bool Play(int colDropped, Player player) {        
+        return Game.GameBoard.FillSpot(colDropped, player.Symbol);
     }
     //ToString - Return name, game wins and games played - Freddy
 }
@@ -400,7 +400,7 @@ public class Human : Player {
 public class Computer: Player
 {    
     //Play() - in computer case colDroped always = 0
-    public override bool Play(int colDroped, Player aiPlayer)
+    public override bool Play(int colDropped, Player aiPlayer)
     {
         int colToDrop = -1;
 
