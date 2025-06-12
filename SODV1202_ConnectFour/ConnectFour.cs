@@ -262,7 +262,8 @@ public static class Game{
                 return false;
             }
         }
-        Console.WriteLine("Tie");
+        Console.WriteLine("GAME TIE");
+        string playAgain = Console.ReadLine();
         return true;
     }
 
