@@ -169,7 +169,7 @@ public static class Game{
             {
                 if (CurrentPlayer is Human)
                 {
-                    Console.Write(CurrentPlayer.Name + " - Drop coin on column:");
+                    Console.Write(CurrentPlayer.Name + "("+CurrentPlayer.Symbol+") - Drop coin on column:");
                     col = Console.ReadLine();
                     int.TryParse(col, out intCol);
                     //CHECK IF CAN PARSE TO INT
@@ -391,8 +391,7 @@ public abstract class Player {
 //CLASS PLAYER HUMAN
 public class Human : Player {     
     //Play()
-    public override bool Play(int colDroped, Player player) {
-        Console.WriteLine("Human");
+    public override bool Play(int colDroped, Player player) {        
         return Game.GameBoard.FillSpot(colDroped, player.Symbol);
     }
     //ToString - Return name, game wins and games played - Freddy
@@ -442,8 +441,9 @@ public class Computer: Player
         }
         int MaxChancesToWin = 0;
         int colWithMaxChance = -1;
-        for(int row = Game.Rows-1; row >= 0; row--) {
-            for (int col = 0; col < Game.Cols-1; col++) {
+        //Since AI will check next col and next row inside the checking process we need to gor for length - 2, instead it will get a full row or column
+        for(int row = Game.Rows-2; row >= 0; row--) {
+            for (int col = 0; col < Game.Cols-2; col++) {
                 //drop in the available spot
                 if (Game.GameBoard.Spots[row, col] == '-') {
                     int chancesInThisSpot = 0;
