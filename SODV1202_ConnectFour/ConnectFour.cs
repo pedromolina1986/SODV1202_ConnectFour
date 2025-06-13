@@ -121,13 +121,14 @@ public static class Game{
         Console.WriteLine(@"=====================================================================");
         Console.Write("Enter your choice: ");
         int option = 0;
-        
-        option = int.Parse(s: Console.ReadLine());
-        if (option < 1 || option > 3)
+        string erroHandlingMessage = "";
+        try
         {
-            GameStartScreen();
-        }
-
+            option = int.Parse(s: Console.ReadLine());
+        }        
+        catch (Exception e) {
+            GameStartScreen();            
+        }                
         return option;
     }
     //SET PLAYERS
