@@ -272,7 +272,7 @@ public static class Game{
         if (isThereWinner && !hypotesis) {
             Console.WriteLine(CurrentPlayer.Name + " is the Winner!!!");
             //just to keep the screen showing the last play
-            string playAgain = Console.ReadLine();
+            string playAgain = Console.ReadLine(); 
         }
         return isThereWinner;
     }
@@ -386,11 +386,20 @@ public class Board {
     public override string ToString()
     {
         string displayBoard = "";
-        for(int row = 0; row < Game.Rows; row++)
+        for (int col = 0; col < Game.Cols; col++) {
+            displayBoard += " | " + (col+1) + " | ";
+        }
+        displayBoard += "\n";
+        for (int col = 0; col < Game.Cols; col++)
+        {
+            displayBoard += " ----- ";
+        }
+        displayBoard += "\n";
+        for (int row = 0; row < Game.Rows; row++)
         {
             for (int col = 0; col < Game.Cols; col++)
             {                
-                displayBoard += Spots[row, col];                
+                displayBoard += " | " + Spots[row, col] + " | ";                
                 if (col == Game.Cols-1) {
                     displayBoard += "\n";
                 }
