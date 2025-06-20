@@ -203,49 +203,71 @@ public static class Game{
     //check if is there a winner
     //hypotesis will check with a simulated board if there will be a winner
     public static bool GameWin(bool hypotesis = false) 
-    {                
+    {
         bool isThereWinner = false;
-        for (int row = Game.Rows-1; row > 2; row--) {
-            for (int col = 0; col < Game.Cols; col++) {
-                if (GameBoard.Spots[row, col] == CurrentPlayer.Symbol) {
 
-                    //vertical
-                    if (row - 2 > 0) {                        
-                        if (GameBoard.Spots[row, col] == GameBoard.Spots[row - 1, col] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 2, col] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 3, col])
-                        {
-                            isThereWinner = true;
-                        }                        
-                    }                    
+        for (int row = Game.Rows - 1; row >= 0; row--)
+        {
+            for (int col = 0; col < Game.Cols; col++)
+            {
+                char symbol = GameBoard.Spots[row, col];
+                if (symbol != CurrentPlayer.Symbol)
+                    continue;
 
-                    //horizontal
-                    if (col + 3 < Game.Cols) {                        
-                        if (GameBoard.Spots[row, col] == GameBoard.Spots[row, col + 1] && GameBoard.Spots[row, col] == GameBoard.Spots[row, col + 2] && GameBoard.Spots[row, col] == GameBoard.Spots[row, col + 3])
-                        {
-                            isThereWinner = true;
-                        }                        
-                    };
-
-                    //diagonal
-                    if (row - 2 > 0) {
-                        //Diganoal left
-                        if (col + 2 < Game.Cols - 1)
-                        {
-                            if (GameBoard.Spots[row, col] == GameBoard.Spots[row - 1, col + 1] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 2, col + 2] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 3, col + 3])
-                            {
-                                isThereWinner = true;
-                            }
-                        }
-                        //diagonal right
-                        if (col - 2 > 0)
-                        {
-                            if (GameBoard.Spots[row, col] == GameBoard.Spots[row - 1, col - 1] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 2, col - 2] && GameBoard.Spots[row, col] == GameBoard.Spots[row - 3, col - 3])
-                            {
-                                isThereWinner = true;
-                            }
-                        }
-                    }                    
+                // Vertical
+                if (row - 3 >= 0)
+                {
+                    if (symbol == GameBoard.Spots[row - 1, col] &&
+                        symbol == GameBoard.Spots[row - 2, col] &&
+                        symbol == GameBoard.Spots[row - 3, col])
+                    {
+                        isThereWinner = true;
+                    }
                 }
-            } 
+
+                // Horizontal
+                if (col + 3 < Game.Cols)
+                {
+                    if (symbol == GameBoard.Spots[row, col + 1] &&
+                        symbol == GameBoard.Spots[row, col + 2] &&
+                        symbol == GameBoard.Spots[row, col + 3])
+                    {
+                        isThereWinner = true;
+                    }
+                }
+
+                // Diagonal Bottom-left to Top-right
+                if (row - 3 >= 0 && col + 3 < Game.Cols)
+                {
+                    if (symbol == GameBoard.Spots[row - 1, col + 1] &&
+                        symbol == GameBoard.Spots[row - 2, col + 2] &&
+                        symbol == GameBoard.Spots[row - 3, col + 3])
+                    {
+                        isThereWinner = true;
+                    }
+                }
+
+                // Diagonal Bottom-right to Top-left
+                if (row - 3 >= 0 && col - 3 >= 0)
+                {
+                    if (symbol == GameBoard.Spots[row - 1, col - 1] &&
+                        symbol == GameBoard.Spots[row - 2, col - 2] &&
+                        symbol == GameBoard.Spots[row - 3, col - 3])
+                    {
+                        isThereWinner = true;
+                    }
+                }
+
+                if (isThereWinner)
+                {
+                    break;
+                }
+            }
+
+            if (isThereWinner)
+            {
+                break;
+            }
         }
         if (isThereWinner && !hypotesis) {
             Console.WriteLine(CurrentPlayer.Name + " is the Winner!!!");
@@ -478,7 +500,7 @@ public class Computer: Player
                     //if this spot has more chances of winnings spots then
                     if (MaxChancesToWin < chancesInThisSpot) {
                         MaxChancesToWin = chancesInThisSpot;
-                        colWithMaxChance = col;
+                        colWithMaxChance = col+1;
                     }
                 }
             }
