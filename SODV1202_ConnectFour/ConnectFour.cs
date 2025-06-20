@@ -76,7 +76,7 @@ public static class Game{
     public static List<Player> Players = new List<Player>();
     public static List<Player> Rank = new List<Player>();
     public static Player? CurrentPlayer;
-    
+
     //GAME START SCREEN
     /*
      REFERENCES: 
@@ -85,6 +85,13 @@ public static class Game{
      */
     public static int GameStartScreen(bool playAgain = false)
     {
+
+        if (playAgain)
+        {
+            CurrentPlayer = Players[0];
+            GameBoard = new Board();                        
+            GamePlay();
+        }
         Console.Title = "Connect Four - Console Edition";
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.Clear();
@@ -99,40 +106,32 @@ public static class Game{
         Console.WriteLine(@"=====================================================================");
         Console.WriteLine(@"                   Welcome to Console Connect Four!                  ");
         Console.WriteLine(@"=====================================================================");
-        if (Rank.Count > 0) {            
+        if (Rank.Count > 0)
+        {
             Console.WriteLine(@"                            POWER RANK                               ");
             Console.WriteLine(@"=====================================================================");
-            foreach (Player player in Rank) {
-                Console.WriteLine(player.Wins + " WINS of ("+player.GamesPlayed+") | " + player.Name); // CHANGE FOR THE TOSTRING METHOD
+            foreach (Player player in Rank)
+            {
+                Console.WriteLine(player.Wins + " WINS of (" + player.GamesPlayed + ") | " + player); // CHANGE FOR THE TOSTRING METHOD
             }
             Console.WriteLine(@"=====================================================================");
         }
-        if (playAgain)
-        {
-            Console.WriteLine(@"[0] PLAY AGAIN                                                       ");
-        }
-        else
-        {
-            Console.WriteLine(@"[1] HUMAN vs COMPUTER                                                ");
-            Console.WriteLine(@"[2] HUMAN vs HUMAN                                                   ");
-            Console.WriteLine(@"[3] EXIT                                                             ");
-
-        }
+        Console.WriteLine(@"[1] HUMAN vs COMPUTER                                                ");
+        Console.WriteLine(@"[2] HUMAN vs HUMAN                                                   ");
+        Console.WriteLine(@"[3] EXIT                                                             ");
         Console.WriteLine(@"=====================================================================");
         Console.Write("Enter your choice: ");
+        string optionString = "";
         int option = 0;
-        string erroHandlingMessage = "";
-        try
+        do
         {
-            option = int.Parse(s: Console.ReadLine());
-        }        
-        catch (Exception e) {
-            GameStartScreen();            
-        }                
+            optionString = Console.ReadLine();
+            int.TryParse(optionString, out option);            
+        } while (option != 1 && option != 2 && option != 3);     
         return option;
     }
     //SET PLAYERS
-    public static void SetPlayers(int gameType) {
+    public static bool SetPlayers(int gameType) {
         Human newPlayer1 = new Human();
         Console.Write("Player 1 - Type your name and press ENTER:");
         newPlayer1.Name = Console.ReadLine();
@@ -155,6 +154,15 @@ public static class Game{
         }
         //Set current player
         CurrentPlayer = newPlayer1;
+
+        foreach (Player player in Players) {
+            if (string.IsNullOrEmpty(player.Name)) {                
+                Players = new List<Player>();
+                throw new GameExeception("Player name must not be empty! Try again!");
+            }
+        }
+
+        return true;
     }
 
     //GAME PLAY
@@ -197,7 +205,23 @@ public static class Game{
         } while (!endGame);
         //after game play reset to the default settings        
         SetRank(CurrentPlayer);
-        GameReset();
+
+        Console.WriteLine(CurrentPlayer.Name + " is the Winner!!!");
+        //just to keep the screen showing the last play
+
+        string playAgain;
+        do
+        {
+            Console.WriteLine("Play Again? Yes (Y) or No (N):");
+            playAgain = Console.ReadLine();
+        } while (playAgain != "Y" && playAgain != "N");
+        if (playAgain == "Y")
+        {
+            GameStartScreen(true);
+        }
+        else {
+            GameReset();            
+        }            
     }
 
     //check if is there a winner
@@ -268,12 +292,7 @@ public static class Game{
             {
                 break;
             }
-        }
-        if (isThereWinner && !hypotesis) {
-            Console.WriteLine(CurrentPlayer.Name + " is the Winner!!!");
-            //just to keep the screen showing the last play
-            string playAgain = Console.ReadLine(); 
-        }
+        }        
         return isThereWinner;
     }
 
@@ -373,7 +392,8 @@ public class Board {
 
         if (Spots[row, col] != '-')
         {
-            Console.WriteLine("Spot unavailable!");
+            Console.WriteLine("Spot unavailable! Press enter to play again!");
+            Console.ReadLine();            
             Console.WriteLine(this);
             return false;
         }
@@ -385,11 +405,14 @@ public class Board {
     //Draw - ToString()
     public override string ToString()
     {
+        Console.Clear();        
         string displayBoard = "";
+        
         for (int col = 0; col < Game.Cols; col++) {
             displayBoard += " | " + (col+1) + " | ";
         }
         displayBoard += "\n";
+        
         for (int col = 0; col < Game.Cols; col++)
         {
             displayBoard += " ----- ";
@@ -420,14 +443,19 @@ public abstract class Player {
 
     //Play
     public abstract bool Play(int colDropped, Player player);
+
+    public override string ToString()
+    {
+        return Name;
+    }
+
 }
 //CLASS PLAYER HUMAN
 public class Human : Player {     
     //Play()
     public override bool Play(int colDropped, Player player) {        
         return Game.GameBoard.FillSpot(colDropped, player.Symbol);
-    }
-    //ToString - Return name, game wins and games played - Freddy
+    }    
 }
 //CLASS PLAYER COMPUTER
 public class Computer: Player
@@ -600,10 +628,11 @@ public class Computer: Player
             }
         };
         return firstFound;
-    }
+    }    
 
-    //TOSTRING - Freddy
-
+}
+public class GameExeception : Exception {
+    public GameExeception(string message) : base(message) { }    
 }
 //MAIN PROGRAM
 public class ConnectFour
@@ -619,13 +648,23 @@ public class ConnectFour
             {
                 case 1:
                 case 2:
-                    //GAME LOOP
-                    //Players handle methods
-                    Game.SetPlayers(action);
-                    //Game play
+                    bool gameSetted = false;
+                    do
+                    {
+                        try
+                        {
+                            //GAME LOOP
+                            //Players handle methods
+                            gameSetted = Game.SetPlayers(action);                            
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                        }                        
+
+                    } while (!gameSetted);
+                    //Game play                                                    
                     Game.GamePlay();
-                    //Game over screen - Mikyle
-                    //Play again? - Mikyle                    
                     break;
                 case 3:
                     //Exit
