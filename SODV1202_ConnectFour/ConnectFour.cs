@@ -67,8 +67,9 @@ using System;
 using System.Numerics;
 using System.Collections.Generic;
 
-//CLASS GAME - Descided to create as a static class because we do not need to instantiate it
+//CLASS GAME - Descided to create as a STATIC class because we do not need to instantiate it
 //and it is immutable during this application giving global settings to other classes and main program
+//ENCAPSULATION
 public static class Game{
     public static int Rows = 6;
     public static int Cols = 7;
@@ -358,7 +359,7 @@ public static class Game{
         GameBoard = new Board();
     }
 }
-//CLASS BOARD
+//CLASS BOARD - ASSOCIATION WITH GAME
 public class Board {
     public char[,] Spots { get; set; }
 
@@ -428,10 +429,11 @@ public class Board {
                 }
             }
         }        
+        
         return displayBoard;
     }    
 }
-//CLASS PLAYER
+//CLASS PLAYER - COMPOSITION WITH GAME - ABSTRACTION - POLYMORPHISM
 public abstract class Player { 
     public int Wins { get; set; }
     public int GamesPlayed { get; set; }
@@ -450,14 +452,14 @@ public abstract class Player {
     }
 
 }
-//CLASS PLAYER HUMAN
+//CLASS PLAYER HUMAN - INHERITANCE - POLYMORPHISM
 public class Human : Player {     
     //Play()
     public override bool Play(int colDropped, Player player) {        
         return Game.GameBoard.FillSpot(colDropped, player.Symbol);
     }    
 }
-//CLASS PLAYER COMPUTER
+//CLASS PLAYER COMPUTER - INHERITANCE - POLYMORPHISM
 public class Computer: Player
 {    
     //Play() - in computer case colDroped always = 0
@@ -631,6 +633,7 @@ public class Computer: Player
     }    
 
 }
+//ERROR HANDLING
 public class GameExeception : Exception {
     public GameExeception(string message) : base(message) { }    
 }
